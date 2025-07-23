@@ -34,11 +34,11 @@ outlined on that page and do not file a public issue.
 
 Use clang-format for code formatting.
 
-``` shell
+```sh
 cmake --build build --target clangformat
 ```
 
-``` shell
+```sh
 cd build
 make clangformat
 ```
