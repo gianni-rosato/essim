@@ -25,45 +25,51 @@ https://ieeexplore.ieee.org/document/9344648
 
 ## Building
 
-This project uses CMake to build and depends on `clang-tidy` and `clang-format`
-for linting and auto formatting of source files. You can install both by
-installing llvm. On OS X you can use homebrew, but it won't link `llvm` so you
-need to manualy symlink the related binaries.
+### Building eSSIM
 
-```sh
-brew install llvm
-sudo ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
-sudo ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-format"
-sudo ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"\n
-```
+0. Set up build directory
+  ```
+  mkdir build
+  cd build
+  ```
 
-To build the project, use the following. Using Ninja is recommended (but
-optional, omit `-G Ninja` to use Make instead)
+1. Enter build directory & configure with CMake
+  ```
+  cmake .. -G Ninja -DBUILD_TESTS=OFF  # disable tests for this example
+  cmake --build . --parallel
+  ```
 
-```sh
-mkdir build
-cmake build -G Ninja
-cmake --build build --parallel
-```
+2. Install eSSIM library
+  ```
+  cd ..  # exit build dir
+  cmake --install build
+  ```
 
-CMake will download and install GoogleTest. To skip building tests you can uses
+3. Copy relevant headers
+  ```
+  sudo cp essim/inc/*.h /usr/local/include/essim
+  sudo cp essim/essim.h /usr/local/include
+  ```
 
-```sh
-cmake build -G Ninja -DBUILD_TESTS=OFF
-```
+### Building FFmpeg
 
-Assuming you didn't skip building tests you can run tests using `ctest`
+0. Clone FFmpeg source
+  ```
+  git clone https://code.ffmpeg.org/FFmpeg/FFmpeg.git
+  cd FFmpeg
+  git checkout n6.0
+  ```
 
-```sh
-ctest --output-on-failure
-```
+1. Apply patch
+  ```
+  git apply ~/Projects/essim/ffmpeg/vf_essim.ffmpeg-6.0.patch
+  ```
 
-To install, run:
-
-```sh
-cmake --install build
-sudo cp inc/*.h /usr/local/include/essim  # you may need this
-```
+0. Run `configure` & build
+  ```
+  PKG_CONFIG_PATH=/usr/local/lib/pkgconfig ./configure --enable-libessim
+  make -j$(nproc)
+  ```
 
 ## Build x86 on ARM based MacOS
 
